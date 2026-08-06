@@ -321,7 +321,8 @@ h4 {
 
 .project-card {
   display: grid;
-  grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(300px, 0.42fr) minmax(0, 0.58fr);
+  align-items: start;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -334,6 +335,11 @@ h4 {
   grid-template-columns: 1fr;
 }
 
+.project-card > a {
+  display: block;
+  min-width: 0;
+}
+
 .open-source-card {
   background:
     linear-gradient(90deg, rgba(224, 164, 69, 0.12), transparent 42%),
@@ -341,7 +347,8 @@ h4 {
 }
 
 .project-image {
-  min-height: 100%;
+  width: 100%;
+  min-height: 0;
   aspect-ratio: 4 / 3;
   border: 0;
   border-radius: 0;
@@ -349,10 +356,12 @@ h4 {
 }
 
 .compact-card .project-image {
-  min-height: auto;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
 }
 
 .project-content {
+  min-width: 0;
   padding: clamp(24px, 4vw, 42px);
 }
 
@@ -389,13 +398,39 @@ h4 {
 }
 
 .tech-list {
-  display: inline-flex;
+  display: inline-block;
+  max-width: 100%;
   margin: 24px 0 0;
   border-radius: var(--radius);
   background: rgba(63, 199, 201, 0.12);
   color: var(--teal-dark);
   font-size: 0.9rem;
   padding: 10px 12px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 901px) {
+  .featured-grid .project-image,
+  .open-source-card .project-image {
+    aspect-ratio: 16 / 10;
+  }
+
+  .featured-grid .project-card,
+  .open-source-card {
+    grid-template-columns: minmax(320px, 44%) minmax(0, 56%);
+  }
+}
+
+@media (min-width: 1280px) {
+  .section-shell,
+  .nav-shell {
+    width: min(1240px, calc(100% - 64px));
+  }
+
+  .featured-grid .project-card,
+  .open-source-card {
+    grid-template-columns: minmax(340px, 40%) minmax(0, 60%);
+  }
 }
 
 .contact {
@@ -457,11 +492,26 @@ h4 {
   }
 
   .project-image {
+    aspect-ratio: 16 / 9;
     min-height: auto;
   }
 
   .contact-actions {
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 520px) {
+  .hero {
+    padding-top: 36px;
+  }
+
+  .portrait-card {
+    min-height: 280px;
+  }
+
+  .project-image {
+    aspect-ratio: 21 / 9;
   }
 }
 
