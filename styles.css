@@ -227,22 +227,41 @@ h4 {
 .image-slot::before {
   position: absolute;
   inset: 18px;
+  z-index: 1;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: calc(var(--radius) - 2px);
   content: "";
+  pointer-events: none;
 }
 
-.image-slot span {
+.project-image span {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
-  z-index: 1;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 128px;
+  min-height: 44px;
   border-radius: var(--radius);
-  background: rgba(6, 15, 20, 0.78);
-  font-size: 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(6, 15, 20, 0.88);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
+  color: #ffffff;
+  font-size: 0.82rem;
   font-weight: 800;
-  padding: 8px 10px;
+  line-height: 1;
+  padding: 12px 16px;
   text-transform: uppercase;
+  transform: translate(-50%, -42%);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
+  white-space: nowrap;
 }
 
 .portrait-card {
@@ -342,6 +361,16 @@ h4 {
   min-width: 0;
 }
 
+.project-media-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-media-link:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: -3px;
+}
+
 .open-source-card {
   background:
     linear-gradient(90deg, rgba(224, 164, 69, 0.12), transparent 42%),
@@ -355,6 +384,79 @@ h4 {
   border: 0;
   border-radius: 0;
   box-shadow: none;
+  transform: scale(1);
+  transition:
+    filter 220ms ease,
+    transform 220ms ease;
+}
+
+.project-image::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(9, 13, 18, 0.04), rgba(9, 13, 18, 0.54)),
+    radial-gradient(circle at center, rgba(63, 199, 201, 0.2), transparent 48%);
+  content: "";
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.project-media-link:hover .project-image,
+.project-media-link:focus-visible .project-image {
+  filter: saturate(1.08);
+  transform: scale(1.025);
+}
+
+.project-media-link:hover .project-image::after,
+.project-media-link:focus-visible .project-image::after {
+  opacity: 1;
+}
+
+.project-media-link:hover .project-image span,
+.project-media-link:focus-visible .project-image span {
+  border-color: rgba(138, 223, 224, 0.56);
+  background: rgba(6, 18, 20, 0.95);
+  color: var(--teal-dark);
+  transform: translate(-50%, -50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .project-image span {
+    opacity: 0;
+  }
+
+  .project-media-link:hover .project-image span,
+  .project-media-link:focus-visible .project-image span {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .project-image span {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
+    left: auto;
+    min-width: 116px;
+    min-height: 40px;
+    font-size: 0.78rem;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-image,
+  .project-image::after,
+  .project-image span {
+    transition: none;
+  }
+
+  .project-media-link:hover .project-image,
+  .project-media-link:focus-visible .project-image {
+    transform: none;
+  }
 }
 
 .compact-card .project-image {
