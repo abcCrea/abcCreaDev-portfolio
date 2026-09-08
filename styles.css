@@ -220,7 +220,7 @@ h4 {
   border-radius: var(--radius);
   background-image:
     linear-gradient(135deg, rgba(4, 14, 18, 0.72), rgba(8, 12, 18, 0.46)),
-    var(--image),
+    var(--responsive-image, var(--image)),
     linear-gradient(135deg, #102f35 0%, #2f2416 100%);
   background-position: center;
   background-size: cover;
@@ -392,6 +392,10 @@ h4 {
   transition:
     filter 220ms ease,
     transform 220ms ease;
+}
+
+.featured-grid .project-image {
+  --responsive-image: var(--image-landscape, var(--image));
 }
 
 .project-image::after {
@@ -919,6 +923,14 @@ h4 {
 
   .project-image {
     aspect-ratio: 21 / 9;
+  }
+}
+
+@media (orientation: portrait) {
+  .featured-grid .project-image {
+    --responsive-image: var(--image-portrait, var(--image-landscape, var(--image)));
+    aspect-ratio: 3 / 4;
+    min-height: min(70vh, 620px);
   }
 }
 
