@@ -449,13 +449,19 @@ h4 {
 @media (prefers-reduced-motion: reduce) {
   .project-image,
   .project-image::after,
-  .project-image span {
+  .project-image span,
+  .floating-carousel,
+  .carousel-image-button {
     transition: none;
   }
 
   .project-media-link:hover .project-image,
   .project-media-link:focus-visible .project-image {
     transform: none;
+  }
+
+  .carousel-track {
+    scroll-behavior: auto;
   }
 }
 
@@ -511,6 +517,140 @@ h4 {
   font-size: 0.9rem;
   padding: 10px 12px;
   overflow-wrap: anywhere;
+}
+
+.floating-carousel {
+  position: fixed;
+  right: max(10px, calc((100vw - 1400px) / 2));
+  bottom: 14px;
+  left: max(10px, calc((100vw - 1400px) / 2));
+  z-index: 20;
+  border: 1px solid rgba(138, 223, 224, 0.2);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(90deg, rgba(63, 199, 201, 0.12), transparent 36%),
+    rgba(8, 13, 18, 0.9);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.46);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(18px);
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+  backdrop-filter: blur(18px);
+}
+
+.floating-carousel.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.floating-carousel-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.floating-carousel.is-split .floating-carousel-inner {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.carousel-lane {
+  min-width: 0;
+  background: rgba(17, 25, 35, 0.72);
+  padding: 14px;
+}
+
+.carousel-title {
+  margin: 0 0 10px;
+  color: var(--amber);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.carousel-track {
+  position: relative;
+  height: 136px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding: 18px 4px;
+  touch-action: pan-y;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.carousel-track:focus-visible {
+  border-radius: var(--radius);
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-image-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(168px, 18vw, 260px);
+  height: 96px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius);
+  background: rgba(6, 15, 20, 0.72);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  padding: 0;
+  opacity: var(--image-opacity, 1);
+  transform: translate(calc(-50% + var(--slot-offset, 0px)), -50%)
+    scale(var(--image-scale, 1));
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease,
+    opacity 180ms ease,
+    transform 280ms ease;
+  will-change: transform, opacity;
+}
+
+.carousel-image-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.carousel-image-button:hover,
+.carousel-image-button:focus-visible {
+  border-color: rgba(138, 223, 224, 0.55);
+  outline: none;
+}
+
+.carousel-image-button.is-centered {
+  z-index: 1;
+  border-color: var(--teal-dark);
+  box-shadow:
+    0 0 0 1px rgba(138, 223, 224, 0.28),
+    0 18px 38px rgba(0, 0, 0, 0.36);
+  filter: brightness(1.1) saturate(1.08);
+  opacity: 1;
+  transform: translate(calc(-50% + var(--slot-offset, 0px)), -50%) scale(1.18);
+}
+
+.carousel-image-button:not(.is-nearby) {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @media (min-width: 901px) {
@@ -615,6 +755,16 @@ h4 {
   .contact-actions {
     justify-content: flex-start;
   }
+
+  .floating-carousel {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+  }
+
+  .floating-carousel.is-split .floating-carousel-inner {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 520px) {
@@ -706,5 +856,38 @@ h4 {
 
   .tech-list {
     display: block;
+  }
+
+  .carousel-lane {
+    padding: 12px;
+  }
+
+  .carousel-title {
+    font-size: 0.7rem;
+  }
+
+  .carousel-track {
+    height: 110px;
+    padding: 14px 4px;
+  }
+
+  .carousel-image-button {
+    width: clamp(146px, 44vw, 190px);
+    height: 78px;
+  }
+
+  .carousel-image-button.is-centered {
+    transform: translate(calc(-50% + var(--slot-offset, 0px)), -50%) scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-carousel,
+  .carousel-image-button {
+    transition: none;
+  }
+
+  .carousel-track {
+    scroll-behavior: auto;
   }
 }
