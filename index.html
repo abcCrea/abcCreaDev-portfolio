@@ -566,6 +566,29 @@
       <div class="floating-carousel-inner" data-carousel-lanes></div>
     </aside>
 
+    <div
+      class="image-lightbox"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="lightbox-title"
+    >
+      <button class="lightbox-close" type="button" aria-label="Close image view">
+        X
+      </button>
+      <button class="lightbox-arrow lightbox-prev" type="button" aria-label="Previous image">
+        &lt;
+      </button>
+      <figure class="lightbox-frame">
+        <img data-lightbox-image src="" alt="" />
+        <figcaption id="lightbox-title" data-lightbox-title></figcaption>
+      </figure>
+      <button class="lightbox-arrow lightbox-next" type="button" aria-label="Next image">
+        &gt;
+      </button>
+    </div>
+
     <script src="assets/project-carousels/gallery.js"></script>
     <script src="scripts/project-carousel.js"></script>
   </body>

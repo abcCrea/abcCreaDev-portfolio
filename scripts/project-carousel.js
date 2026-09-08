@@ -2,6 +2,12 @@
   var galleries = window.PROJECT_CAROUSEL_GALLERIES || {};
   var carousel = document.querySelector(".floating-carousel");
   var lanesRoot = document.querySelector("[data-carousel-lanes]");
+  var lightbox = document.querySelector(".image-lightbox");
+  var lightboxImage = document.querySelector("[data-lightbox-image]");
+  var lightboxTitle = document.querySelector("[data-lightbox-title]");
+  var lightboxClose = document.querySelector(".lightbox-close");
+  var lightboxPrev = document.querySelector(".lightbox-prev");
+  var lightboxNext = document.querySelector(".lightbox-next");
   var cards = Array.prototype.slice.call(
     document.querySelectorAll(".project-card[data-project-id]")
   ).filter(function (card) {
@@ -11,6 +17,9 @@
   var activeIds = [];
   var focusedCard = null;
   var hoveredCard = null;
+  var lightboxProject = null;
+  var lightboxIndex = 0;
+  var lastFocusedElement = null;
 
   if (!carousel || !lanesRoot || !cards.length) {
     return;
@@ -126,6 +135,7 @@
 
     lane.className = "carousel-lane";
     lane.dataset.projectId = project.id;
+    lane.dataset.projectTitle = project.title;
 
     title.className = "carousel-title";
     title.textContent = project.title;
@@ -211,6 +221,98 @@
     setTrackIndex(track, activeIndex + direction);
   }
 
+  function updateLightboxImage() {
+    if (!lightboxProject || !lightboxImage || !lightboxTitle) {
+      return;
+    }
+
+    var files = galleries[lightboxProject.id] || [];
+    var imageNumber = lightboxIndex + 1;
+
+    lightboxImage.src =
+      "assets/project-carousels/" + lightboxProject.id + "/" + files[lightboxIndex];
+    lightboxImage.alt = lightboxProject.title + " image " + imageNumber;
+    lightboxTitle.textContent =
+      lightboxProject.title + " | Image " + imageNumber + " of " + files.length;
+  }
+
+  function syncVisibleCarouselTrack() {
+    Array.prototype.slice.call(
+      lanesRoot.querySelectorAll(".carousel-lane")
+    ).forEach(function (lane) {
+      if (lightboxProject && lane.dataset.projectId === lightboxProject.id) {
+        var track = lane.querySelector(".carousel-track");
+        if (track) {
+          setTrackIndex(track, lightboxIndex);
+        }
+      }
+    });
+  }
+
+  function openLightbox(track, imageIndex) {
+    if (!lightbox || !lightboxImage || !lightboxClose) {
+      return;
+    }
+
+    var lane = track.closest(".carousel-lane");
+    if (!lane) {
+      return;
+    }
+
+    var files = galleries[lane.dataset.projectId] || [];
+    if (!files.length) {
+      return;
+    }
+
+    lightboxProject = {
+      id: lane.dataset.projectId,
+      title: lane.dataset.projectTitle || ""
+    };
+    lightboxIndex = wrapIndex(imageIndex, files.length);
+    lastFocusedElement = document.activeElement;
+
+    updateLightboxImage();
+    lightbox.hidden = false;
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.classList.add("lightbox-open");
+    window.requestAnimationFrame(function () {
+      lightbox.classList.add("is-visible");
+      lightboxClose.focus();
+    });
+  }
+
+  function closeLightbox() {
+    if (!lightbox) {
+      return;
+    }
+
+    lightbox.classList.remove("is-visible");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("lightbox-open");
+    lightboxProject = null;
+
+    window.setTimeout(function () {
+      if (!lightbox.classList.contains("is-visible")) {
+        lightbox.hidden = true;
+      }
+    }, 180);
+
+    if (lastFocusedElement && document.body.contains(lastFocusedElement)) {
+      lastFocusedElement.focus();
+    }
+  }
+
+  function moveLightbox(direction) {
+    if (!lightboxProject) {
+      return;
+    }
+
+    var files = galleries[lightboxProject.id] || [];
+    lightboxIndex = wrapIndex(lightboxIndex + direction, files.length);
+    updateLightboxImage();
+    syncVisibleCarouselTrack();
+  }
+
   function getPressedImageButton(event) {
     if (!event.target.closest) {
       return null;
@@ -278,7 +380,10 @@
           track.dataset.wasDragging = "true";
           moveTrack(track, dragDistance < 0 ? 1 : -1);
         } else if (pressedButton && track.contains(pressedButton)) {
-          setTrackIndex(track, Number(pressedButton.dataset.imageIndex));
+          var pressedIndex = Number(pressedButton.dataset.imageIndex);
+          track.dataset.skipClickOpen = "true";
+          setTrackIndex(track, pressedIndex);
+          openLightbox(track, pressedIndex);
         }
 
         pressedButton = null;
@@ -298,7 +403,14 @@
             return;
           }
 
-          setTrackIndex(track, Number(button.dataset.imageIndex));
+          if (track.dataset.skipClickOpen === "true") {
+            track.dataset.skipClickOpen = "false";
+            return;
+          }
+
+          var imageIndex = Number(button.dataset.imageIndex);
+          setTrackIndex(track, imageIndex);
+          openLightbox(track, imageIndex);
         });
       });
 
@@ -377,6 +489,47 @@
     refreshActiveTracks();
   });
   window.addEventListener("load", updateActiveCarousel);
+  window.addEventListener("keydown", function (event) {
+    if (!lightboxProject) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeLightbox();
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      moveLightbox(1);
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      moveLightbox(-1);
+    }
+  });
+
+  if (lightbox) {
+    lightbox.addEventListener("click", function (event) {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+  }
+
+  if (lightboxClose) {
+    lightboxClose.addEventListener("click", closeLightbox);
+  }
+
+  if (lightboxPrev) {
+    lightboxPrev.addEventListener("click", function () {
+      moveLightbox(-1);
+    });
+  }
+
+  if (lightboxNext) {
+    lightboxNext.addEventListener("click", function () {
+      moveLightbox(1);
+    });
+  }
+
   if (reduceMotion.addEventListener) {
     reduceMotion.addEventListener("change", updateActiveCarousel);
   } else if (reduceMotion.addListener) {
